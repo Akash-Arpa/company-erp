@@ -1,10 +1,54 @@
-export function usePurchaseStatusUpdate () {
-const grnMaster = JSON.parse(localStorage.getItem('grnMaster')) || [];
-const poMaster = JSON.parse(localStorage.getItem('poMaster')) || [];
+export function usePurchaseStatusUpdate() {
 
-function updatePoStatus () {
+    
+  function updatePoStatus(grnDetail) {
+    // const grnMaster = JSON.parse(localStorage.getItem('grnMaster')) || [];
+    let poMaster = JSON.parse(localStorage.getItem("poMaster")) || [];
 
-}
+    grnDetail.items.forEach((element) => {
+      if (
+        Number(element.grnQty) + Number(element.preGrn) ==
+        Number(element.qty)
+      ) {
+        let currItems = poMaster.find(
+          (po) => po.po_id === element.po_id
+        )?.itemDetails;
+        currItems[
+          currItems.findIndex(
+            (itm) => itm.itemDetail_id === element.itemDetail_id
+          )
+        ].status = "completed";
+        poMaster[
+          poMaster.findIndex((po) => po.po_id === element.po_id)
+        ].itemDetails = currItems;
+      } else {
+        let currItems = poMaster.find(
+          (po) => po.po_id === element.po_id
+        )?.itemDetails;
+        currItems[
+          currItems.findIndex(
+            (itm) => itm.itemDetail_id === element.itemDetail_id
+          )
+        ].status = "pending";
+        poMaster[
+          poMaster.findIndex((po) => po.po_id === element.po_id)
+        ].itemDetails = currItems;
+      }
+    });
 
-    return{}
+    grnDetail.PurchaseOrder.forEach((element) => {
+      poMaster = poMaster.map((el) => {
+        const status = el.itemDetails.every((itm) => {
+          if (itm.status === "completed") return true;
+          return false;
+        });
+        return {
+          ...el,
+          status: status ? "completed" : "pending",
+        };
+      });
+    });
+  }
+
+  return { updatePoStatus };
 }
