@@ -1,0 +1,33 @@
+.right-align {
+  text-align: right;
+}
+.border{
+  border : 1px solid black;
+  padding: 10px ;
+}
+.padd-4{
+  padding: 10px;
+  border : 2px solid black;
+}
+.flex{
+  display: flex;
+  width: 100%;
+}
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details summary {
+  list-style: none; 
+  cursor: pointer; 
+}
+
+details[open] summary::before {
+  content: "-";
+}
+
+details summary::before {
+  content: "+"; 
+  font-size: 20px; 
+  margin-right: 10px;
+}
