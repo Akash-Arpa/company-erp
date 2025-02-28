@@ -105,17 +105,43 @@ export function useStock() {
   const setDelete = (formCode, docNo, item_id) => {
 
     let stockNo = stockSummary.find(it=>it.docNo===docNo).stock_id
+    let updatedStockDetail;
 
     if (formCode==="IGRN") {
         if (stockDetail.filter(it=>it.stock_id===stockNo).find(ele=>ele.formCode==="IMI")) {
             setError("Cannot Delete a GRN that has an issued item")
             return;
         }
+        else {
+            setStockSummary(prev =>
+            {
+                updatedStockDetail= prev.filter(it=> it.stock_id!==stockNo);
+                return updatedStockDetail;
+            }
+            )
+            setStockDetail(prev =>
+            {
+                updatedStockDetail = prev.filter(it=> it.stock_id!==stockNo)
+                return updatedStockDetail;
+            }
+            )
+            setError("Deleted Successfully")
+            return;
+        }
     }
-
-    setStockDetail(prev => 
-      prev.filter(item => !(item.stock_id === stockNo))
-    );
+    else if (formCode==="IMI"){
+        if (item_id){
+            setStockDetail(prev => 
+                prev.filter(item => !(item.stock_id === stockNo && item.item_id===item_id))
+              );    
+        }
+        else {
+            setStockDetail(prev => 
+                prev.filter(item => !(item.stock_id === stockNo && item.formCode==="IGRN"))
+              );
+        }
+    }
+    
     calculateStockSummary();
   };
 
