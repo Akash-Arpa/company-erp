@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import useCalPreGrn from "../../Hooks/useCalPreGrn";
+import useCalPreGrn from "../../hooks/useCalPreGrn";
 import { useFetchData } from "../../hooks/useFetch";
-import { usePurchaseStatusUpdate } from "../../Hooks/usePurchaseStatusUpdate";
+import { usePurchaseStatusUpdate } from "../../hooks/usePurchaseStatusUpdate";
 import { useStock } from "../../hooks/useStockService";
 import Home from "../Home";
 
