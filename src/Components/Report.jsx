@@ -13,7 +13,7 @@ export default function Report() {
         docNoYearly: "MI0001Y",
         docDate: "2025-02-24",
         poNo: "PO0001",
-        itemNo: "MM0001",
+        item_id: "MM0001",
         recieved: 0,
         issued: 5,
         formCode: "IMI",
@@ -25,7 +25,7 @@ export default function Report() {
         docNoYearly: "MI0001Y",
         docDate: "2025-03-24",
         poNo: "PO0001",
-        itemNo: "MM0002",
+        item_id: "MM0002",
         recieved: 0,
         issued: 10,
         formCode: "IMI",
@@ -37,7 +37,7 @@ export default function Report() {
         docNoYearly: "MI0001Y",
         docDate: "2025-01-24",
         poNo: "PO0002",
-        itemNo: "MM0001",
+        item_id: "MM0001",
         recieved: 0,
         issued: 2,
         formCode: "IMI",
@@ -49,7 +49,7 @@ export default function Report() {
         docNoYearly: "GRN0001Y",
         docDate: "2025-01-24",
         poNo: "PO0001",
-        itemNo: "MM0002",
+        item_id: "MM0002",
         recieved: 30,
         issued: 0,
         formCode: "IGRN",
@@ -61,7 +61,7 @@ export default function Report() {
         docNoYearly: "GRN0001Y",
         docDate: "2025-02-24",
         poNo: "PO0001",
-        itemNo: "MM0001",
+        item_id: "MM0001",
         recieved: 100,
         issued: 0,
         formCode: "IGRN",
@@ -73,7 +73,7 @@ export default function Report() {
         docNoYearly: "GRN0001Y",
         docDate: "2025-03-24",
         poNo: "PO0002",
-        itemNo: "MM0001",
+        item_id: "MM0001",
         recieved: 20,
         issued: 0,
         formCode: "IGRN",
@@ -92,7 +92,7 @@ export default function Report() {
         docNoYearly: "GRN0001Y",
         docDate: "2025-02-24",
         poNo: "PO0001",
-        itemNo: "MM0002",
+        item_id: "MM0002",
         recieved: 30,
         issued: 10,
         balance: 20,
@@ -104,7 +104,7 @@ export default function Report() {
         docNoYearly: "GRN0001Y",
         docDate: "2025-03-24",
         poNo: "PO0001",
-        itemNo: "MM0001",
+        item_id: "MM0001",
         recieved: 100,
         issued: 5,
         balance: 100,
@@ -116,7 +116,7 @@ export default function Report() {
         docNoYearly: "GRN0001Y",
         docDate: "2025-01-24",
         poNo: "PO0002",
-        itemNo: "MM0001",
+        item_id: "MM0001",
         recieved: 20,
         issued: 2,
         balance: 18,
@@ -178,7 +178,7 @@ export default function Report() {
                 
                 <tr key={stockS.stock_id}>
                   <td className="border">{stockS.stock_id}</td>
-                  <td className="border">{stockS.itemNo}</td>
+                  <td className="border">{stockS.item_id}</td>
                   <td className="border">{stockS.recieved}</td>
                   <td className="border">{stockS.issued}</td>
                   <td className="border">{stockS.balance}</td>
