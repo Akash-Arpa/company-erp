@@ -1,8 +1,8 @@
-import MaterialIssue from './Components/MaterialIssue';
-import MaterialIssueDash from './Components/materialIssueDash';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import MaterialIssue from './MaterialIssue'
+import MaterialIssueDash from "./materialIssueDash";
  
-function App() {
+function MaterialIssueApp() {
   return (
     <BrowserRouter>
       <Routes>
@@ -13,4 +13,4 @@ function App() {
   );
 }
  
-export default App;
+export default MaterialIssueApp;

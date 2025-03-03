@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLot } from '../hooks/useLot';
-import { useStock } from '../hooks/useStockService';
+import { useLot } from '../../hooks/useLot';
+import { useStock } from '../../hooks/useStockService'; 
 
 function MaterialIssue() {
-    const [ error,setInsert, setUpdate, setDelete] = useStock()
+    const [ error,setInsert, setUpdate, setDelete] = useStock();
     const [ItemData, setItemData] = useState([]);
     const [updateAll, setUpdateAll] = useState(false);
     const [enableModal, setModal] = useState(false);
