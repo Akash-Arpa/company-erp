@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import useDateFilter from "../hooks/useDateFilter.js";
 
 export default function Report() {
-  // Initializing stock details and stock summary in localStorage
+
   localStorage.setItem(
     "stockDetails",
     JSON.stringify([
@@ -54,7 +55,7 @@ export default function Report() {
         formCode: "IGRN",
       },
       {
-        stockDetail_id: 1740738595695,
+        stockDetail_id: 1740738595690,
         stock_id: 1740738595695,
         docNo: "GRN0001",
         docNoYearly: "GRN0001Y",
@@ -129,6 +130,7 @@ export default function Report() {
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const [isValidDate, setIsValidDate] = useState(false);
+  const {filterByDate} = useDateFilter();
 
   const handleChange = (e) => {
     let name = e.target.name;
@@ -138,31 +140,15 @@ export default function Report() {
         setFromDate(value);
         if(toDate){
             setIsValidDate(true);
-            // console.log("here");
         }
     }
     else {
         setToDate(value);
         if(fromDate){
             setIsValidDate(true);
-            // console.log("here");
         }
     }
   }
-
-  const filterByDate = (date) => {
-    if (!fromDate || !toDate) return true;
-    const targetDate = new Date(date);
-    const startDate = new Date(fromDate);
-    const endDate = new Date(toDate);
-
-    console.log( date, date<=toDate , toDate);
-    if(date >= fromDate && date <= toDate){
-        console.log(date, "here");
-        return `true ${date}`;
-    }
-    return date >= fromDate && date <= toDate;
-  };
 
   return (
     <div>
@@ -186,18 +172,18 @@ export default function Report() {
         </thead>
         <tbody>
           {stockSummary &&
-            stockSummary.filter(stockS => filterByDate(stockS.docDate) && isValidDate).map((stockS, index) => {
+            stockSummary.filter(stockS => filterByDate(stockS.docDate, fromDate, toDate) && isValidDate).map((stockS, index) => {
               return (
                 <>
                 
-                <tr key={index}>
+                <tr key={stockS.stock_id}>
                   <td className="border">{stockS.stock_id}</td>
                   <td className="border">{stockS.itemNo}</td>
                   <td className="border">{stockS.recieved}</td>
                   <td className="border">{stockS.issued}</td>
                   <td className="border">{stockS.balance}</td>
                 </tr>
-                  <tr>
+                  {/* <tr> */}
                     <details>
                       <summary></summary>
                       <table className="padd-4">
@@ -214,9 +200,9 @@ export default function Report() {
                           {stockDetails &&
                             stockDetails
                               .filter((stockD) => stockD.stock_id == stockS.stock_id && filterByDate(stockD.docDate)  && isValidDate)
-                              .map((stockD, index) => {
+                              .map((stockD, idx) => {
                                 return (
-                                  <tr key={index}>
+                                  <tr key={stockD.stockDetail_id}>
                                     <td className="border">{stockD.formCode}</td>
                                     <td className="border">{stockD.docNoYearly}</td>
                                     <td className="border">{stockD.docDate}</td>
@@ -228,7 +214,7 @@ export default function Report() {
                         </tbody>
                       </table>
                     </details>
-                  </tr>
+                  {/* </tr> */}
                   </>
               );
             })}
