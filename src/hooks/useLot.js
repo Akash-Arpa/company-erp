@@ -3,7 +3,10 @@ export function useLot() {
 
   function getLot(item_id, date) {
     return stockDetails.reduce((acc, stockDetail) => {
-      if (stockDetail.item_id === item_id && new Date(stockDetail.docDate) <= new Date(date)) {
+      if (
+        stockDetail.item_id === item_id &&
+        new Date(stockDetail.docDate) <= new Date(date)
+      ) {
         const idx = acc.findIndex((el) => el.stock_id === stockDetail.stock_id);
         if (idx != -1) {
           acc[idx].stockQty =
@@ -18,7 +21,7 @@ export function useLot() {
             docNo: stockDetail.docNo,
             docDate: stockDetail.docDate,
             stockQty: stockDetail.recieved,
-            item_id:item_id,
+            item_id: item_id,
             balance: Number(stockDetail.recieved) - Number(stockDetail.issued),
           });
         }

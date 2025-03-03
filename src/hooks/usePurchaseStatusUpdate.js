@@ -1,13 +1,14 @@
-export function usePurchaseStatusUpdate() {
+import useCalPreGrn from "./useCalPreGrn";
 
-    
+export function usePurchaseStatusUpdate() {
+    const calcPreGrn = useCalPreGrn();
   function updatePoStatus(grnDetail) {
     // const grnMaster = JSON.parse(localStorage.getItem('grnMaster')) || [];
     let poMaster = JSON.parse(localStorage.getItem("poMaster")) || [];
 
     grnDetail.items.forEach((element) => {
       if (
-        Number(element.grnQty) + Number(element.preGrn) ==
+        Number(element.grnQty) + Number(calcPreGrn(grnDetail.vendor,element.po_id,element.itemDetail_id)) ==
         Number(element.qty)
       ) {
         let currItems = poMaster.find(
