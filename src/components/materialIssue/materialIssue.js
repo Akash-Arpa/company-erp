@@ -12,6 +12,7 @@ function MaterialIssue() {
     const [localData, setLocalData] = useState([]);
     const [edited, setEdited] = useState(false); 
     const [AuthorizedState, setAuthourizedState] = useState(false); 
+    const [editingActive, seteditingActive] = useState(false);
  
     const { getLot } = useLot();
     const navigate = useNavigate();
@@ -19,96 +20,75 @@ function MaterialIssue() {
     const [notEditing, setNotEditing] = useState(false);
  
     useEffect(() => {
+        // Step 1: Fetch Data
         fetch("https://dummyjson.com/c/6e58-6906-42c4-9164")
             .then(response => response.json())
-            .then(data => setItemData(data.result || []))
+            .then(data => {
+                console.log("Fetched Data:", data);
+                setItemData(data.result || []); // Step 2: Update ItemData
+                return data.result || []; // Pass data to the next `.then()`
+            })
+            .then((fetchedData) => {
+                // Step 3: Use fetched data to update localData
+                const processedData = fetchedData.map(item => ({
+                    selected: item.selected,
+                    item_id: item.id,
+                    item_name: item.item_name,
+                    item_quantity: "",
+                    lots: []
+                }));
+    
+                setLocalData(processedData);
+                return processedData; // Pass processed data to next step
+            })
+            .then((updatedLocalData) => {
+                // Step 4: Run PopulateEdit AFTER localData is updated
+                PopulateEdit(updatedLocalData);
+            })
             .catch(error => console.error("Fetch error:", error));
-        console.log(ItemData);
-    }, [updateAll]);
- 
-    useEffect(() => {
-        setLocalData(
-            ItemData.map(item => ({
-                selected: item.selected,
-                item_id: item.id,
-                item_name: item.item_name,
-                item_quantity: "",
-                lots: []
-            }))
-        );
-        console.log(localData);
-        //PopulateEdit();
-    }, [ItemData]);
- 
-    useEffect(() => {
+    }, []);
+    
+    // Ensure PopulateEdit receives the updated data
+    function PopulateEdit(updatedLocalData) {
         const issueToEdit = sessionStorage.getItem('issueToEdit');
-        console.log(issueToEdit);
-        if (issueToEdit) {
-
-            const materialIssues = JSON.parse(localStorage.getItem('MaterialIssue')) || [];
-            const issue = materialIssues.find(issue => issue.docNo == issueToEdit);
-            if(edited){
-                return;
-            }
-            else{
-                if (issue) {
-                    document.getElementById("docNo").value = issue.docNo;
-                    document.getElementById("docDate").value = issue.docDate;
-                    document.getElementById("issuedTo").value = issue.issuedTo;
-                    document.getElementById("docStatus").value = issue.docStatus;
-                    document.getElementById("docNo").disabled = true;
-                    if(issue.docStatus == "Authourized") setAuthourizedState(true);
-                    localData.map(item => {
-                        const existingItem = issue.issuedMaterial.find(issuedItem => issuedItem.item_id == item.item_id);
-                        console.log(existingItem);
-                        if (existingItem) {
-                            setEdited(true);
-                            item.selected = true;
-                            item.item_quantity = existingItem.item_quantity;
-                            item.lots = existingItem.lots;
-                            console.log(localData);
-                            setEditing((prev) => true);
-                            console.log("Editing", editing);
-                        }
-                    });
-                }
-            }
-           
- 
-        }
-    })
- 
-    function PopulateEdit() {
-        const issueToEdit = sessionStorage.getItem('issueToEdit');
-        console.log(issueToEdit);
-        if (issueToEdit) {
-            const materialIssues = JSON.parse(localStorage.getItem('MaterialIssue')) || [];
-            const issue = materialIssues.find(issue => issue.docNo == issueToEdit);
-            if (issue) {
-                document.getElementById("docNo").value = issue.docNo;
-                document.getElementById("docDate").value = issue.docDate;
-                document.getElementById("issuedTo").value = issue.issuedTo;
-                document.getElementById("docStatus").value = issue.docStatus;
-                document.getElementById("docNo").disabled = true;
-                localData.map(item => {
-                    const existingItem = issue.issuedMaterial.find(issuedItem => issuedItem.item_id == item.item_id);
-                    console.log(existingItem);
-                    if (existingItem) {
-                        item.selected = true;
-                        item.item_quantity = existingItem.item_quantity;
-                        item.lots = existingItem.lots;
-                        console.log(localData);
-                        setEditing(pre => true);
-                        console.log("Editing", editing);
-                    }
-                });
-            }
- 
-        } else {
+        if (!issueToEdit) {
             setNotEditing(true);
             console.log("Not Editing", notEditing);
+            return;
+        }
+    
+        console.log(issueToEdit);
+        const materialIssues = JSON.parse(localStorage.getItem('MaterialIssue')) || [];
+        const issue = materialIssues.find(issue => issue.docNo == issueToEdit);
+        
+        if (issue) {
+            document.getElementById("docNo").value = issue.docNo;
+            document.getElementById("docDate").value = issue.docDate;
+            document.getElementById("issuedTo").value = issue.issuedTo;
+            document.getElementById("docStatus").value = issue.docStatus;
+            document.getElementById("docNo").disabled = true;
+    
+            const newData = updatedLocalData.map(item => {
+                const existingItem = issue.issuedMaterial.find(issuedItem => issuedItem.item_id == item.item_id);
+                if (existingItem) {
+                    if(issue.docStatus == "Authourized")    setAuthourizedState(true);
+                    return {
+                        ...item,
+                        selected: true,
+                        item_quantity: existingItem.item_quantity,
+                        lots: existingItem.lots
+                    };
+                }
+                return item;
+            });
+    
+            setLocalData(newData); // Update state properly
+            setEditing(true);
+            seteditingActive(true);
+            console.log("Editing", editing);
         }
     }
+    
  
     const closeModal = () => {
         setModal(false);
@@ -239,7 +219,16 @@ function MaterialIssue() {
     };
  
     const itemMarked = (id, status) => {
-        let item = localData.find(item => item.item_id == id);
+        const item = localData.find(item => item.item_id == id);
+        setLocalData(
+            localData.map((prev) => {
+                if(prev.item_id == id){
+                    prev.selected = status.checked;
+                    console.log(prev);
+                }
+                return prev;
+            })
+        )
         item.selected = status.checked;
         if (status.checked) {
             document.getElementById(`quant${item.item_id}`).disabled = false;
@@ -247,11 +236,42 @@ function MaterialIssue() {
         else {
             document.getElementById(`quant${item.item_id}`).disabled = true;
             document.getElementById(`quant${item.item_id}`).value = "";
+            document.getElementById(`sel${item.item_id}`);
             if (item.lots.length > 0) alert("Issue quantity of this item if present will be cleared");
             item.lots = [];
             item.item_quantity = "";
         }
     }
+
+    const updateCalender = async (date) => {
+        try {
+            const updatedData = await Promise.all(localData.map(async (prev) => {
+                if (!prev.selected) return prev;
+    
+                console.log("Updating lots for:", prev);
+    
+                let data = await getLot(prev.item_id, date);
+    
+                if (!data || !Array.isArray(data.lots)) {
+                    console.warn(`No lots found for item ${prev.item_id}`);
+                    return prev; 
+                }
+                let updatedLots = data.lots.map((lot) => {
+                    let matchedMaterial = prev.lots.find(material => material.item_id === lot.item_id);
+                    return matchedMaterial ? { ...lot, issueQty: matchedMaterial.issueQty } : lot;
+                });
+    
+                return { ...prev, lots: updatedLots };
+            }));
+    
+            setLocalData(prevData => JSON.stringify(prevData) !== JSON.stringify(updatedData) ? updatedData : prevData);
+            alert("Item quantities would have been changed due to date update");
+        } catch (error) {
+            console.error("Error updating calendar:", error);
+        }
+    };
+    
+    
  
     // Delete operation
  
@@ -406,12 +426,10 @@ function MaterialIssue() {
         document.getElementById("issuedTo").value = "";
         document.getElementById("docStatus").value = "";
         setLocalData([]);
-        setUpdateAll(!updateAll);
         setModal(false);
         setModalData([]);
         sessionStorage.removeItem('issueToEdit');
         setAuthourizedState(false);
-        navigate('/');
     }
  
     const handleOpenDashboard = () => {
@@ -428,7 +446,7 @@ function MaterialIssue() {
                     </tr>
                     <tr>
                         <td>Doc Date</td>
-                        <td><input type="date" id="docDate" readOnly={AuthorizedState} /></td>
+                        <td><input type="date" onInput={(e) => updateCalender(e.target.value)} id="docDate" readOnly={AuthorizedState} /></td>
                     </tr>
                     <tr>
                         <td>Issue To</td>
@@ -465,7 +483,7 @@ function MaterialIssue() {
                                             {localData.map((item) => (
  
                                                 <tr key={item.item_id}>
-                                                    <td><input type="checkbox" disabled={AuthorizedState} onInput={(e) => itemMarked(item.item_id, e.target)} checked={item.selected} /></td>
+                                                    <td><input  type="checkbox" disabled={AuthorizedState} onClick={(e) => itemMarked(item.item_id, e.target)} checked={item.selected } /></td>
                                                     <td>{item.item_name}</td>
                                                     <td><input id={`quant${item.item_id}`} type="number" readOnly={AuthorizedState} disabled={!item.selected} value={item.item_quantity} onInput={(e) => updateQuantity(item.item_id, e.target.value)} /></td>
                                                     <td><button onClick={() => populateItem(item.item_id)}>Populate</button></td>
@@ -542,5 +560,3 @@ function MaterialIssue() {
 }
  
 export default MaterialIssue;
- 
- 
