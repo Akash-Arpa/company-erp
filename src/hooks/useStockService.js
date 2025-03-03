@@ -3,7 +3,7 @@ import useLocalStorage from "./useLocalStorage2";
 
 export function useStock() {
   const [stockSummary, setStockSummary] = useLocalStorage("stockSummary", []);
-  const [stockDetail, setStockDetail] = useLocalStorage("stockDetail", []);
+  const [stockDetail, setStockDetail] = useLocalStorage("stockDetails", []);
   const [error, setError] = useState("");
 
   const calculateStockSummary = (arg, arg2) => {
@@ -32,14 +32,13 @@ export function useStock() {
     const newDetailEntries = [];
 
     entries.forEach(entry => {
-      const { formCode, poNo, item_id, docNo, docNoYearly, docDate, qty } = entry;
+      const { formCode, item_id, docNo, docNoYearly, docDate, qty } = entry;
       const stock_id = Date.now() + Math.floor(Math.random() * 1000) + newSummaryEntries.length;
       newSummaryEntries.push({
         stock_id,
         docNo,
         docNoYearly,
         docDate,
-        poNo,
         item_id,
         recieved: parseFloat(qty),
         issued: 0,
@@ -53,7 +52,6 @@ export function useStock() {
         docNo,
         docNoYearly,
         docDate,
-        poNo,
         item_id,
         recieved: parseFloat(qty),
         issued: 0,
@@ -70,20 +68,20 @@ export function useStock() {
     const newDetailEntries = [];
 
     entries.forEach(entry => {
-      const { formCode, poNo, item_id, docNo, docNoYearly, docDate, qty, stock_id } = entry;
+      const { formCode,  item_id, docNo, docNoYearly, docDate, qty, stock_id } = entry;
 
       let targetStockId = stock_id;
-      if (!targetStockId) {
-        const matchingStock = stockSummary.find(
-          item => item.poNo === poNo && item.item_id === item_id
-        );
-        if (matchingStock) {
-          targetStockId = matchingStock.stock_id;
-        } else {
-          console.error(`No matching stock found for update: PO=${poNo}, Item=${item_id}`);
-          return;
-        }
-      }
+      // if (!targetStockId) {
+      //   const matchingStock = stockSummary.find(
+      //     item => item.poNo === poNo && item.item_id === item_id
+      //   );
+      //   if (matchingStock) {
+      //     targetStockId = matchingStock.stock_id;
+      //   } else {
+      //     console.error(`No matching stock found for update: PO=${poNo}, Item=${item_id}`);
+      //     return;
+      //   }
+      // }
 
       newDetailEntries.push({
         stockDetail_id: Date.now() + Math.floor(Math.random() * 1000) + newDetailEntries.length,
@@ -91,7 +89,6 @@ export function useStock() {
         docNo,
         docNoYearly,
         docDate,
-        poNo,
         item_id,
         recieved: 0,
         issued: parseFloat(qty),
