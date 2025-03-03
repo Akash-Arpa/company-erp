@@ -137,7 +137,7 @@ const PoMain = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Form submitted", formData);
-    const newFormData = { ...formData };
+    let newFormData = { ...formData };
 
     if (newFormData.itemDetails.length === 0) {
       alert("Add Item");
@@ -155,7 +155,7 @@ const PoMain = () => {
       alert("Some Schedule is Mismatching");
       return;
     }
-    newFormData.itemDetails.splice(-1, 1);
+    newFormData.itemDetails = newFormData.itemDetails.filter(el=>el.item_id != " " && el.netAmount != "");
     newFormData.poNo = "PO" + newFormData.poNo.padStart(8, "0");
     newFormData.itemDetails = newFormData.itemDetails.map((el) => {
       return {

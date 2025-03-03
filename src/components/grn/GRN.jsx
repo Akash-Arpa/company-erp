@@ -27,21 +27,23 @@ export default function GRN() {
   const [items, setItems] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
   const [editingID, setEditingID] = useState("");
-  const   [
-    error,
-    setInsert,
-    setUpdate,
-    setDelete,
-  ] = useStock();
-  const {updatePoStatus} = usePurchaseStatusUpdate();
+  const editRef = useRef("Authorized");
+
+  const [error, setInsert, setUpdate, setDelete] = useStock();
+  const { updatePoStatus } = usePurchaseStatusUpdate();
 
   useEffect(() => {
     let list = JSON.parse(localStorage.getItem("poMaster")) || [];
     let grnList = JSON.parse(localStorage.getItem("GRN")) || [];
+    let editID = JSON.parse(localStorage.getItem("GRNEditId")) || "";
+    if(editID){
+      handleEdit(editID);
+      
+    }
     setGrn((prev) => {
       return grnList;
     });
-   // console.log(list);
+    // console.log(list);
     setPurchaseOrder((prev) => {
       return list;
     });
@@ -54,10 +56,14 @@ export default function GRN() {
   const useCalGrn = useCalPreGrn();
 
   const handleChange = (e) => {
+    if(editingID && grnForm.DocStatus === "Authorized" ){
+      alert("You Cannot change Authorized GRN");
+      return;
+    }
     if (e.target.name === "Vendor") {
       vendorSelection(e.target.value);
       setGrnForm((prev) => {
-     //   console.log(e.target.id);
+        //   console.log(e.target.id);
         return {
           ...prev,
           VendorName: e.target.id,
@@ -92,9 +98,10 @@ export default function GRN() {
   };
 
   const POSelection = (e, id) => {
+   
     if (e.target.checked) {
       activePO.forEach((po) => {
-        if (po.po_id == id) {
+        if (po.po_id == id && po.poStatus === "pending") {
           setGrnForm((prev) => {
             prev.PurchaseOrder = [
               ...prev.PurchaseOrder,
@@ -105,7 +112,6 @@ export default function GRN() {
                 isSelected: true,
               },
             ];
-
             setItems((pre) => {
               let up = po.itemDetails.filter((ele) => {
                 return ele.itemStatus === "pending";
@@ -144,13 +150,14 @@ export default function GRN() {
   };
 
   const itemSelection = (e, itemId, index) => {
+   
     if (e.target.checked) {
       setGrnForm((prev) => {
         items[index].isSelected = true;
         // console.log(prev,"prev^^^^^^^^^^^^^^^^")
-       let updatedItem = prev;
-      
-       updatedItem.items = [...prev.items, items[index]];
+        let updatedItem = prev;
+
+        updatedItem.items = [...prev.items, items[index]];
         // console.log( updatedItem,"itemSelection")
         return updatedItem;
       });
@@ -193,6 +200,7 @@ export default function GRN() {
   };
 
   const save = () => {
+   
     if (!formValidation()) {
       return;
     }
@@ -200,12 +208,9 @@ export default function GRN() {
       let updated = Grn.filter((ele) => {
         return ele.GRN_id !== editingID;
       });
-      let orgData = organizeData( grnForm);
-     
-      setInsert(orgData);
      
       setGrn((prev) => {
-        localStorage.setItem("GRN", JSON.stringify( [...updated, grnForm]));
+        localStorage.setItem("GRN", JSON.stringify([...updated, grnForm]));
         return [...updated, grnForm];
       });
       setEditingID((prev) => {
@@ -213,15 +218,20 @@ export default function GRN() {
       });
     } else {
       setGrn((prev) => {
-        let orgData = organizeData(grnForm);
-         setInsert(orgData);
         // console.log(orgData,"9876546546");
         localStorage.setItem("GRN", JSON.stringify([...prev, grnForm]));
         return [...prev, grnForm];
       });
     }
+
+    if(grnForm.DocStatus === "Authorized"){
+      console.log("authorizer called")
+      let orgData = organizeData(grnForm);  
+      setInsert(orgData);
+    }
+
     updatePoStatus(grnForm);
-    alert("GRn Saved Successfully!");
+    alert("GRN Saved Successfully!");
     setNew();
   };
 
@@ -229,41 +239,49 @@ export default function GRN() {
   const organizeData = (grnData) => {
     let data = [];
     grnData.items.forEach((item) => {
-        data = [
-          ...data,
-          {
-            docNo: grnForm.DocNo,
-            docDate: grnForm.DocDate,
-            docNoYearly: String(String(grnForm.DocNo) + "Y"),
-            // poNo: item.po_id,
-            item_id: item.item_id,
-            formCode: "IGRN",
-            qty: item.grnQty,
-          },
-        ];
-      });
+      data = [
+        ...data,
+        {
+          docNo: grnForm.DocNo,
+          docDate: grnForm.DocDate,
+          docNoYearly: String(String(grnForm.DocNo) + "Y"),
+          // poNo: item.po_id,
+          item_id: item.item_id,
+          formCode: "IGRN",
+          qty: item.grnQty,
+        },
+      ];
+    });
 
     return data;
   };
 
   const setNew = () => {
+    editRef.current = true;
+
     setGrnForm((prev) => {
       return { ...initialForm() };
     });
+    localStorage.setItem("GRNEditId", false);
+
     setItems((prev) => {
       return [];
     });
     setActivePO((prev) => {
       return [];
     });
+    setEditingID(prev=>{
+      return false;
+    })
+
   };
 
   const DeleteGrn = () => {
-   
     if (editingID === "") {
       alert("Please select a GRN to delete");
       return;
     }
+   
     setDelete("IGRN", grnForm.DocNo);
     setGrn((prev) => {
       let up = prev.filter((ele) => {
@@ -272,28 +290,38 @@ export default function GRN() {
       localStorage.setItem("GRN", JSON.stringify(up));
       return up;
     });
+    updatePoStatus(grnForm,true);
     setNew();
   };
 
   const Search = () => {
+    setItems(prev=>{
+      return [];
+    })
     setShowSearch((prev) => {
       return true;
     });
   };
 
   const handleEdit = (id) => {
+    let grnList = JSON.parse(localStorage.getItem("GRN")) || [];
+    
+    // setGrn((prev) => {
+    //   return grnList;
+    // });
     setEditingID(id);
-
+    localStorage.setItem("GRNEditId", id);
     setGrnForm((prev) => {
-      let up = Grn.filter((ele) => {
+      let up = grnList.filter((ele) => {
         return ele.GRN_id == id;
       });
+      editRef.current = up[0].DocStatus;
+      console.log( editRef.current,"98798798797")
       setActivePO((prev) => {
         return [...up[0].PurchaseOrder];
       });
       setItems((prev) => {
         up[0].items.forEach((item) => {
-         
           item.preGrnQty = parseFloat(
             useCalGrn(up[0].Vendor, item.po_id, item.itemDetail_id, item.grnQty)
           ).toFixed(3);
@@ -313,11 +341,10 @@ export default function GRN() {
     //   pre[index].grnQty = e.target.value;
     //   return pre;
     // });
+   
     setGrnForm((prev) => {
-    
       prev.items.forEach((item) => {
         if (item.itemDetails_id === itemId) {
-         
           item.grnQty = e.target.value;
         }
       });
@@ -326,6 +353,7 @@ export default function GRN() {
   };
 
   const handleG = (e, index) => {
+   
     if (e.target.value > items[index].qty - items[index].preGrnQty) {
       setItems((pre) => {
         pre[index][e.target.name] = 0;
@@ -362,23 +390,22 @@ export default function GRN() {
 
   return (
     <>
-  
       {!showSearch ? (
         <div>
-           <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                gap: "10px",
-                marginLeft: "5px",
-                marginBottom:"20px"
-              }}
-            >
-              <button onClick={save}>Save</button>
-              <button onClick={setNew}>New</button>
-              <button onClick={DeleteGrn}>Delete</button>
-              <button onClick={Search}>Open</button>
-            </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "10px",
+              marginLeft: "5px",
+              marginBottom: "20px",
+            }}
+          >
+            <button onClick={save}   disabled={editingID && grnForm.DocStatus === "Authorized" && editRef.current !=="Initial"}>Save</button>
+            <button onClick={setNew}>New</button>
+            <button onClick={DeleteGrn}   disabled={editingID && grnForm.DocStatus === "Authorized" && editRef.current !=="Initial"}>Delete</button>
+            <button onClick={Search}>Open</button>
+          </div>
           <div
             style={{
               display: "flex",
@@ -390,6 +417,7 @@ export default function GRN() {
             <input
               type="text"
               name="DocNo"
+            disabled={editingID && grnForm.DocStatus === "Authorized" && editRef.current !=="Initial"}
               value={grnForm.DocNo}
               onChange={(e) => {
                 handleChange(e);
@@ -402,6 +430,7 @@ export default function GRN() {
             <input
               type="date"
               name="DocDate"
+              disabled={editingID && grnForm.DocStatus === "Authorized" && editRef.current !=="Initial"}
               value={grnForm.DocDate}
               onChange={(e) => {
                 handleChange(e);
@@ -413,6 +442,7 @@ export default function GRN() {
             <select
               name="DocStatus"
               value={grnForm.DocStatus}
+              disabled={editingID && grnForm.DocStatus === "Authorized" && editRef.current !=="Initial"}
               onChange={(e) => {
                 handleChange(e);
               }}
@@ -427,6 +457,7 @@ export default function GRN() {
             <select
               name="Vendor"
               value={grnForm.Vendor}
+              disabled={editingID && grnForm.DocStatus === "Authorized" && editRef.current !=="Initial"}
               onChange={(e) => {
                 handleChange(e);
               }}
@@ -442,7 +473,6 @@ export default function GRN() {
             </select>
           </div>
           <div>
-           
             <table border={1}>
               <thead>
                 <tr>
@@ -459,6 +489,7 @@ export default function GRN() {
                         <input
                           type="checkbox"
                           defaultChecked={ele.isSelected}
+                          disabled={editingID && grnForm.DocStatus === "Authorized" && editRef.current !=="Initial"}
                           onClick={(e) => {
                             POSelection(e, ele.po_id);
                           }}
@@ -498,6 +529,7 @@ export default function GRN() {
                       <td>
                         <input
                           type="checkbox"
+                          disabled={editingID && grnForm.DocStatus === "Authorized" && editRef.current !=="Initial"}
                           defaultChecked={ele.isSelected}
                           onChange={(e) => {
                             itemSelection(e, ele.itemDetail_id, index);
@@ -517,6 +549,7 @@ export default function GRN() {
                           type="number"
                           name="grnQty"
                           value={ele.grnQty}
+                          disabled={editingID && grnForm.DocStatus === "Authorized" && editRef.current !=="Initial"}
                           onChange={(e) => {
                             handleG(e, index);
                             handleGrnQty(e, index, ele.itemDetail_id);
@@ -527,7 +560,7 @@ export default function GRN() {
                         />
                       </td>
                       <td>{ele.rate}</td>
-                      <td>{ele.netAmount}</td>
+                      <td>{ele.grnQty * ele.rate}</td>
                     </tr>
                   );
                 })}
@@ -589,7 +622,6 @@ export default function GRN() {
           </div>
         </div>
       )}
-     
     </>
   );
 }

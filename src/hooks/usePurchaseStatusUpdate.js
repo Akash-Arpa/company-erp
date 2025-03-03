@@ -1,21 +1,26 @@
 import useCalPreGrn from "./useCalPreGrn";
 
-
 export function usePurchaseStatusUpdate() {
+  const useCalPre = useCalPreGrn();
 
-const useCalPre = useCalPreGrn();
-    
-  function updatePoStatus(grnDetail) {
+  function updatePoStatus(grnDetail, isDeleting = false) {
     // const grnMaster = JSON.parse(localStorage.getItem('grnMaster')) || [];
     let poMaster = JSON.parse(localStorage.getItem("poMaster")) || [];
-   console.log(grnDetail,"Grn detai;")
+    console.log(grnDetail, "Grn detai;");
 
     grnDetail.items.forEach((element) => {
-      console.log(useCalPre(grnDetail.Vendor,element.po_id, element.itemDetail_id));
+      console.log(
+        useCalPre(grnDetail.Vendor, element.po_id, element.itemDetail_id)
+      );
       if (
-        Number(element.grnQty) + Number(useCalPre(grnDetail.Vendor,element.po_id, element.itemDetail_id)) ==
-        Number(element.qty)
+        // Number(element.grnQty) +
+          Number(
+            useCalPre(grnDetail.Vendor, element.po_id, element.itemDetail_id)
+          ) ==
+          Number(element.qty) &&
+        !isDeleting
       ) {
+        console.log("if")
         let currItems = poMaster.find(
           (po) => po.po_id === element.po_id
         )?.itemDetails;
@@ -28,6 +33,7 @@ const useCalPre = useCalPreGrn();
           poMaster.findIndex((po) => po.po_id === element.po_id)
         ].itemDetails = currItems;
       } else {
+        console.log("else")
         let currItems = poMaster.find(
           (po) => po.po_id === element.po_id
         )?.itemDetails;
@@ -56,9 +62,8 @@ const useCalPre = useCalPreGrn();
     });
 
     console.log(poMaster, "*******************");
-    localStorage.setItem('poMaster',JSON.stringify(poMaster));
+    localStorage.setItem("poMaster", JSON.stringify(poMaster));
   }
-
 
   return { updatePoStatus };
 }
