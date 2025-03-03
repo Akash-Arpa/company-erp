@@ -1,14 +1,18 @@
 import useCalPreGrn from "./useCalPreGrn";
 
 export function usePurchaseStatusUpdate() {
-    const calcPreGrn = useCalPreGrn();
+
+const useCalPre = useCalPreGrn();
+    
   function updatePoStatus(grnDetail) {
     // const grnMaster = JSON.parse(localStorage.getItem('grnMaster')) || [];
     let poMaster = JSON.parse(localStorage.getItem("poMaster")) || [];
+   console.log(grnDetail,"Grn detai;")
 
     grnDetail.items.forEach((element) => {
+      console.log(useCalPre(grnDetail.Vendor,element.po_id, element.itemDetail_id));
       if (
-        Number(element.grnQty) + Number(calcPreGrn(grnDetail.vendor,element.po_id,element.itemDetail_id)) ==
+        Number(element.grnQty) + Number(useCalPre(grnDetail.Vendor,element.po_id, element.itemDetail_id)) ==
         Number(element.qty)
       ) {
         let currItems = poMaster.find(
@@ -18,7 +22,7 @@ export function usePurchaseStatusUpdate() {
           currItems.findIndex(
             (itm) => itm.itemDetail_id === element.itemDetail_id
           )
-        ].status = "completed";
+        ].itemStatus = "completed";
         poMaster[
           poMaster.findIndex((po) => po.po_id === element.po_id)
         ].itemDetails = currItems;
@@ -30,7 +34,7 @@ export function usePurchaseStatusUpdate() {
           currItems.findIndex(
             (itm) => itm.itemDetail_id === element.itemDetail_id
           )
-        ].status = "pending";
+        ].itemStatus = "pending";
         poMaster[
           poMaster.findIndex((po) => po.po_id === element.po_id)
         ].itemDetails = currItems;
@@ -40,16 +44,20 @@ export function usePurchaseStatusUpdate() {
     grnDetail.PurchaseOrder.forEach((element) => {
       poMaster = poMaster.map((el) => {
         const status = el.itemDetails.every((itm) => {
-          if (itm.status === "completed") return true;
+          if (itm.itemStatus === "completed") return true;
           return false;
         });
         return {
           ...el,
-          status: status ? "completed" : "pending",
+          poStatus: status ? "completed" : "pending",
         };
       });
     });
+
+    console.log(poMaster, "*******************");
+    localStorage.setItem('poMaster',JSON.stringify(poMaster));
   }
+
 
   return { updatePoStatus };
 }
