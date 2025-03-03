@@ -25,11 +25,10 @@ export function useLot() {
             balance: Number(stockDetail.recieved) - Number(stockDetail.issued),
           });
         }
-        return acc;
-      }, []);
-    }
-   
-    return { getLot };
+      }
+      return acc;
+    }, []);
   }
-   
-   
+
+  return { getLot };
+}
