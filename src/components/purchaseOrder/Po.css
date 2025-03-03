@@ -1,0 +1,70 @@
+.po-main-container,.po-form{
+    display:flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+input,select{
+    padding: 5px;
+    font-size: medium;
+    width: 200px;
+    max-width: 90%;
+}
+
+.head-input-container{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.input-container{
+display: flex;
+flex-direction: column;
+gap: 5px;
+justify-content: flex-start;
+}
+
+.input-wrapper{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2em;
+    
+}
+
+.item-grid{
+    border: 1px solid white;
+    border-collapse: collapse;
+    width: 80%;
+    margin-top: 2em;
+}
+
+.text-right,input[type=number]{
+    text-align: right;
+}
+
+.pointer{
+    cursor: pointer;
+}
+.general-detail-wrapper{
+display: flex;
+width: 100%;
+justify-content: end;
+}
+
+.general-grid{
+    border-collapse: collapse;
+    width: 30%;
+    margin-top: 1em;
+}
+
+.button-wrapper{
+    display: flex;
+    gap: 7px;
+}
+
+.mt-1{
+    margin-top: 1em;
+}
