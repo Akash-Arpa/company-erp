@@ -3,7 +3,7 @@ import useLocalStorage from "./useLocalStorage";
 
 export function useStock() {
   const [stockSummary, setStockSummary] = useLocalStorage("stockSummary", []);
-  const [stockDetail, setStockDetail] = useLocalStorage("stockDetail", []);
+  const [stockDetail, setStockDetail] = useLocalStorage("stockDetails", []);
   const [error, setError] = useState("");
 
   const calculateStockSummary = (arg, arg2) => {
