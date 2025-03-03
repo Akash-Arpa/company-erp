@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import useDateFilter from "../hooks/useDateFilter.js";
+import useDateFilter from "../../hooks/useDateFilter";
 import "./Report.css";
 
 export default function Report() {
