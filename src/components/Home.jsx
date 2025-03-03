@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import PoMain from "../components/purchaseOrder/PoMain";
 import PO from "./purchaseOrder/PO";
 import GRN from "./grn/GRN";
-import Report from "./Report/Report";
-import MaterialIssue from "./materialIssue/materialIssue";
+// import Report from "./Report/Report";
+// import MaterialIssue from "./materialIssue/materialIssue";
 import { useNavigate } from "react-router-dom";
 
 export default function Home() {
@@ -20,16 +20,16 @@ export default function Home() {
       Name: "GRN",
       title: "grn",
     },
-    {
-      tab: Report,
-      Name: "Report",
-      title: "report",
-    },
-    {
-      tab: MaterialIssue,
-      Name: "Material Issue",
-      title: "material-issue",
-    },
+    // {
+    //   tab: Report,
+    //   Name: "Report",
+    //   title: "report",
+    // },
+    // {
+    //   tab: MaterialIssue,
+    //   Name: "Material Issue",
+    //   title: "material-issue",
+    // },
   ];
 
   const handleActiveTab = (title) => {

@@ -1,11 +1,11 @@
 import './App.css'
 import Home from './components/Home'
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import PoMain from './components/purchaseOrder/PoMain';
-import SearchPo from './components/purchaseOrder/SearchPo';
-import GRN from './components/grn/GRN';
-import Report from './components/Report/Report';
-import MaterialIssue from './components/materialIssue/materialIssue';
+// import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+// import PoMain from './components/purchaseOrder/PoMain';
+// import SearchPo from './components/purchaseOrder/SearchPo';
+// import GRN from './components/grn/GRN';
+// import Report from './components/Report/Report';
+// import MaterialIssue from './components/materialIssue/materialIssue';
 
 function App() {
   

@@ -170,7 +170,7 @@
 // }
 
 import { useState } from "react";
-import useLocalStorage from "./useLocalStorage";
+import useLocalStorage from "./useLocalStorage2";
 
 export function useStock() {
   const [stockSummary, setStockSummary] = useLocalStorage("stockSummary", []);
