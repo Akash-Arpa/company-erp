@@ -1,25 +1,51 @@
 import React, { useEffect, useState } from "react";
 import useDateFilter from "../../hooks/useDateFilter";
 import "./Report.css";
-import { stockApi} from "../../api/stockStore";
-import { useLoaderData} from 'react-router';
+// import { stockApi} from "../../api/stockStore";
+// import { useLoaderData} from 'react-router';
 
-export async function stockLoader() {
-  console.log("Stock Detail Loader....");
-  const stockDetails= await stockApi.fetchStockDetails();
-  const stockSummary= await stockApi.fetchStockSummary();
+// export async function stockLoader() {
+//   console.log("Stock Detail Loader....");
+//   const stockDetails= await stockApi.fetchStockDetails();
+//   const stockSummary= await stockApi.fetchStockSummary();
 
-  return {stockDetails, stockSummary};
-}
+//   return {stockDetails, stockSummary};
+// }
+
+async function fetchStockDetails () {
+  let response = await fetch('https://67c6b91b351c081993fe715a.mockapi.io/stockDetails');
+  // console.log(response);
+  let data = await response.json();
+  return data;
+};
+async function fetchStockSummary(){
+  let response = await fetch('https://67c6b91b351c081993fe715a.mockapi.io/stockSummary');
+  let data = await response.json();
+  return data;
+};
 
 export default function Report() {
-  // console.log(useLoaderData());
-  const { stockDetails, stockSummary } = useLoaderData();
-  
+  // const { stockDetails, stockSummary } = useLoaderData();
+
+  const [stockDetails, setStockDetails] = useState([]);
+  const [stockSummary, setStockSummary] = useState([]);
+
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const [isValidDate, setIsValidDate] = useState(false);
   const { filterByDate } = useDateFilter();
+
+  useEffect(() => {
+    const loadData = async () => {   
+        const [details, summary] = await Promise.all([
+          fetchStockDetails(),
+          fetchStockSummary(),
+        ]);
+        setStockDetails(details);
+        setStockSummary(summary);
+    };
+    loadData();
+  }, []);
 
   const handleChange = (e) => {
     let name = e.target.name;
@@ -75,7 +101,7 @@ export default function Report() {
             stockSummary
               .filter(
                 (stockS) =>
-                  // filterByDate(stockS.docDate, fromDate, toDate) && 
+                  filterByDate(stockS.docDate, fromDate, toDate) && 
                 isValidDate
               )
               .map((stockS, index) => {
@@ -107,7 +133,7 @@ export default function Report() {
                               .filter(
                                 (stockD) =>
                                   stockD.stock_id == stockS.stock_id &&
-                                  // filterByDate(stockD.docDate, fromDate, toDate) &&
+                                  filterByDate(stockD.docDate, fromDate, toDate) &&
                                   isValidDate
                               )
                               .map((stockD, idx) => {

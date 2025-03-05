@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client'
 import {Route, RouterProvider, createBrowserRouter} from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
-import Report, { stockLoader } from './components/report/Report.jsx'
+import Report from './components/report/Report.jsx'
 import Home from "./components/Home.jsx"
 
 const router = createBrowserRouter([
@@ -19,12 +19,10 @@ const router = createBrowserRouter([
       path: "report",
       element: <Report />,
       // action: stockAction,
-      loader: stockLoader
+      // loader: stockLoader
     }]
   }
 ])
-
-// console.log(stockLoader());
 
 createRoot(document.querySelector("#root")).render(
   <StrictMode>
