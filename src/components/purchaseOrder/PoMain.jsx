@@ -245,16 +245,6 @@ const PoMain = () => {
       }
     );
     const resdata = await response.json();
-    for (let i = 0; i < data.itemDetails.length; i++) {
-      console.log("ajson", JSON.stringify(data.itemDetails[i]));
-      const response_itemDetails = await fetch(
-        `https://67c168b561d8935867e2e089.mockapi.io/api/poMaster/purchaseOrder/${resdata.id}/itemDetails`,
-        {
-          method: "POST",
-          body: JSON.stringify(data.itemDetails[i]),
-        }
-      );
-    }
     console.log(resdata);
   };
 

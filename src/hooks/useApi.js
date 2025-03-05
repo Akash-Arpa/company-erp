@@ -60,7 +60,8 @@ const useApi = (url, method = "GET", headers = {}) => {
     setLoading(true);
     try {
       const response = await fetch(url, { headers });
-      if (!response.ok) throw new Error(Failed to fetch: ${response.statusText});
+      if (!response.ok)
+        throw new Error(`Failed to fetch: ${response.statusText}`);
       const result = await response.json();
       setData(result);
     } catch (err) {
@@ -73,7 +74,7 @@ const useApi = (url, method = "GET", headers = {}) => {
   const request = async (method, body = null, id = null) => {
     setLoading(true);
     try {
-      const response = await fetch(id ? ${url}/${id} : url, {
+      const response = await fetch(id ? `${url}/${id}` : url, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -81,7 +82,8 @@ const useApi = (url, method = "GET", headers = {}) => {
         },
         body: body ? JSON.stringify(body) : null,
       });
-      if (!response.ok) throw new Error(Failed to ${method}: ${response.statusText});
+      if (!response.ok)
+        throw new Error(`Failed to ${method}: ${response.statusText}`);
       const result = await response.json();
       setData(result);
       return result;
