@@ -1,16 +1,14 @@
-
 import { useEffect, useState } from "react";
 
 const useFetch = async (url) => {
-
   const response = await fetch(url);
 
   const data = await response.json();
-  return data.result;
+  // console.log(data, "Data");
+  return data.result ? data.result : data;
 };
 
 export default useFetch;
-
 
 export function useFetchData(url) {
   const [data, setData] = useState([]);

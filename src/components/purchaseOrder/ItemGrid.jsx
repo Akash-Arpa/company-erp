@@ -60,6 +60,7 @@ const ItemGrid = ({
     }
     // console.log("currItem");
     if (e.target.name === "rate" || e.target.name === "qty") {
+      currItem[e.target.name] = e.target.value;
       let currTaxes = formData.taxDetails.map((el) => {
         if (el.itemDetail_id === id)
           return {
@@ -69,7 +70,6 @@ const ItemGrid = ({
         return el;
       });
       currItem.netAmount = reCalculate(id, formData, currTaxes);
-      currItem[e.target.name] = e.target.value;
       setFormData((prev) => {
         let updatedList = [...prev.itemDetails];
         updatedList.splice(currIndex, 1, currItem);

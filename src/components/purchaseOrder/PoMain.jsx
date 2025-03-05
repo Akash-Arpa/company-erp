@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Po.css";
 import ItemGrid from "./ItemGrid";
-import  useFetch  from "../../hooks/useFetch";
+import useFetch from "../../hooks/useFetch";
 import { useCalculateAmount } from "../../hooks/useCalculateAmount";
 import GeneralDetail from "./GeneralDetail";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
@@ -29,8 +29,8 @@ const initialState = {
   totalTax: 0,
 };
 const PoMain = () => {
-  const [poMaster, setPoMaster] = useLocalStorage("poMaster");
-  const [poList, setPoList] = useState(poMaster);
+  // const [poMaster, setPoMaster] = useLocalStorage("poMaster");
+  // const [poList, setPoList] = useState(poMaster);
   const [formData, setFormData] = useState(initialState);
   const [itemMaster, setItemMaster] = useState();
   const [customerMaster, setCustomerMaster] = useState();
@@ -57,9 +57,12 @@ const PoMain = () => {
     }
   };
 
-  const fillData = () => {
-    const id = Number(localStorage.getItem("editPoId"));
-    const currPo = { ...poList.find((el) => el.po_id === id) };
+  const fillData = async () => {
+    const id = localStorage.getItem("editPoId");
+    const currPo = await useFetch(
+      `https://67c168b561d8935867e2e089.mockapi.io/api/poMaster/purchaseOrder/${id}`
+    );
+    // const currPo = { ...poList.find((el) => el.po_id === id) };
     currPo.poNo = currPo.poNo.slice(2, 10);
     currPo.itemDetails = [...currPo.itemDetails, { ...initialItemState }];
     console.log(currPo, initialItemState);
@@ -70,7 +73,7 @@ const PoMain = () => {
     fetchAll();
   }, []);
 
-  const { reCalculate } = useCalculateAmount();
+  // const { reCalculate } = useCalculateAmount();
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -155,7 +158,9 @@ const PoMain = () => {
       alert("Some Schedule is Mismatching");
       return;
     }
-    newFormData.itemDetails = newFormData.itemDetails.filter(el=>el.item_id != " " && el.netAmount != "");
+    newFormData.itemDetails = newFormData.itemDetails.filter(
+      (el) => el.item_id != " " && el.netAmount != ""
+    );
     newFormData.poNo = "PO" + newFormData.poNo.padStart(8, "0");
     newFormData.itemDetails = newFormData.itemDetails.map((el) => {
       return {
@@ -164,21 +169,15 @@ const PoMain = () => {
       };
     });
 
-    uploadData(newFormData);
+    const id = localStorage.getItem("editPoId");
 
-    const id = Number(localStorage.getItem("editPoId"));
     if (id) {
-      const updatedList = [...poList];
-      const index = poList.findIndex((el) => el.po_id === id);
-      updatedList.splice(index, 1, newFormData);
-      setPoList((prev) => {
-        return [...updatedList];
-      });
+      console.log(id);
+      uploadData(newFormData, id);
     } else {
-      setPoList((prev) => {
-        return [...prev, newFormData];
-      });
+      uploadData(newFormData);
     }
+
     resetForm();
   };
 
@@ -213,16 +212,19 @@ const PoMain = () => {
     });
   }, [formData.itemDetails, formData.taxDetails]);
 
-  useEffect(() => {
-    setPoMaster(poList);
-  }, [poList]);
+  // useEffect(() => {
+  //   setPoMaster(poList);
+  // }, [poList]);
 
-  const handleDelete = () => {
-    const id = Number(localStorage.getItem("editPoId"));
+  const handleDelete = async () => {
+    const id = localStorage.getItem("editPoId");
     if (id) {
-      let updatedList = [...poList];
-      updatedList = updatedList.filter((el) => el.po_id != id);
-      setPoList((prev) => [...updatedList]);
+      const response = await fetch(
+        `https://67c168b561d8935867e2e089.mockapi.io/api/poMaster/purchaseOrder/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       resetForm();
     } else {
       alert("First Save the PO before deleting!!");
@@ -236,11 +238,32 @@ const PoMain = () => {
     localStorage.removeItem("editPoId");
   };
 
-  const uploadData = async (data) => {
+  const uploadData = async (data, id) => {
+    // console.log("Data-->", data);
+    if (id) {
+      console.log(
+        "hhsdgjhkshgj",
+        `https://67c168b561d8935867e2e089.mockapi.io/api/poMaster/purchaseOrder/${id}`
+      );
+
+      const response = await fetch(
+        `https://67c168b561d8935867e2e089.mockapi.io/api/poMaster/purchaseOrder/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+    }
     const response = await fetch(
       "https://67c168b561d8935867e2e089.mockapi.io/api/poMaster/purchaseOrder",
       {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(data),
       }
     );

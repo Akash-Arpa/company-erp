@@ -1,12 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { useNavigate } from "react-router-dom";
+import useFetch from "../../hooks/useFetch";
 
 const SearchPo = () => {
-  const [poMaster, setPoMaster] = useLocalStorage("poMaster");
+  const [poMaster, setPoMaster] = useState([]);
+  const fetchAll = async () => {
+    
+    const PoList = await useFetch(
+      `https://67c168b561d8935867e2e089.mockapi.io/api/poMaster/purchaseOrder`
+    );
+    console.log(PoList);
+    setPoMaster((prev) => PoList);
+  };
+
+  useEffect(() => {
+    fetchAll();
+  }, []);
+
   const navigate = useNavigate();
   const handleClick = (e, id) => {
-    localStorage.setItem("editPoId", String(id));
+    localStorage.setItem("editPoId", id);
     navigate("/");
   };
   return (
@@ -28,7 +42,7 @@ const SearchPo = () => {
                 <td>{el.poNo}</td>
                 <td>
                   <button
-                    onClick={(e) => handleClick(e, el.po_id)}
+                    onClick={(e) => handleClick(e, el.id)}
                     type="button"
                   >
                     Edit
